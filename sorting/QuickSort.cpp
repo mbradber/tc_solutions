@@ -13,33 +13,25 @@ void swap(int a[], int c, int d){
 void quicksort(int a[], int b, int e){
     if(e - b <= 0) return;
     
-    int pivotIdx = b;
-    int pivotValue = a[pivotIdx];
-    int swapIdx = e;
-    
-    // move all values greater than pivot to the right
-    for(int i = b + 1; i <= e; ++i){
-        while(a[swapIdx] >= pivotValue && swapIdx >= i){
-            swapIdx--;
-        }
-        
-        if(a[i] >= pivotValue && swapIdx > i){
-            swap(a, i, swapIdx);
+    int swapIdx = b - 1;
+    for(int i = b; i <= e - 1; ++i){
+        if(a[i] <= a[e]){
+            ++swapIdx;
+            swap(a, swapIdx, i);
         }
     }
     
-    // move pivot value into place
-    swap(a, pivotIdx, swapIdx);
+    swap(a, swapIdx + 1, e);
     
-    quicksort(a, swapIdx + 1, e);
-    quicksort(a, b, swapIdx - 1);
+    quicksort(a, swapIdx + 2, e);
+    quicksort(a, b, swapIdx);
 }
 
 int main(){
-    int a[] = {7, 6, 5, 4, 3, 2, 1};
-    quicksort(a, 0, 6);
+    int a[] = {2, 8 , 7, 1, 3, 5, 6, 4};
+    quicksort(a, 0, 7);
     
-    for(int i = 0; i < 7; ++i){
+    for(int i = 0; i < 8; ++i){
         cout << a[i] << " ";
     }
     cout << endl;
