@@ -39,7 +39,7 @@ int placeTile(vector<string> board, int cellNumber){
                     // choice 1 is to not place any tile
                     v[0] = placeTile(board, cellNumber + 1);
                     
-                    // choose to place at 0 orientation
+                    // rotation1
                     if(validSpot(board, i, j + 1) && validSpot(board, i-1, j)){
                         vector<string> boardCopy = board;
                         boardCopy[i][j] = 'T';
@@ -49,7 +49,7 @@ int placeTile(vector<string> board, int cellNumber){
                         v[1] = 1 + placeTile(boardCopy, cellNumber + 1);
                     }
                     
-                    // choose to place at 90 orientation
+                    // rotation2
                     if(validSpot(board, i-1, j) && validSpot(board, i, j-1)){
                         vector<string> boardCopy = board;
                         boardCopy[i][j] = 'T';
@@ -59,7 +59,7 @@ int placeTile(vector<string> board, int cellNumber){
                         v[2] = 1 + placeTile(boardCopy, cellNumber + 1);
                     }
                     
-                    // choose to place at 180 orientation
+                    // rotation3
                     if(validSpot(board, i, j-1) && validSpot(board, i + 1, j)){
                         vector<string> boardCopy = board;
                         boardCopy[i][j] = 'T';
@@ -69,7 +69,7 @@ int placeTile(vector<string> board, int cellNumber){
                         v[3] = 1 + placeTile(boardCopy, cellNumber + 1);
                     }
                     
-                    // choose to place at 180 orientation
+                    // rotation4
                     if(validSpot(board, i, j+1) && validSpot(board, i + 1, j)){
                         vector<string> boardCopy = board;
                         boardCopy[i][j] = 'T';
