@@ -1,9 +1,32 @@
-//
-//  Table.cpp
-//  HashTable
-//
-//  Created by Matthew Bradberry on 9/14/14.
-//  Copyright (c) 2014 GREE. All rights reserved.
-//
+#include "Table.h"
 
-#include <stdio.h>
+Table::Table(){
+    mTable.resize(mBucketCount);
+}
+
+string& Table::Add(const int& key, const string& value){
+    int idx = Hash(key);
+    mTable[idx].push_back(make_pair(key, value));
+    
+    return mTable[idx].back().second;
+}
+
+string& Table::Get(int key){
+    int idx = Hash(key);
+    
+    for(Chain::iterator itr = mTable[idx].begin(); itr != mTable[idx].end(); ++itr){
+        if(itr->first == key){
+            return itr->second;
+        }
+    }
+    
+    return Add(key, "Default");
+}
+
+string& Table::operator[](const int& key){
+    return Get(key);
+}
+
+int Table::Hash(const int& key){
+    return key % mBucketCount;
+}

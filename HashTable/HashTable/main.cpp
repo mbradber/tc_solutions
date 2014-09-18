@@ -1,70 +1,156 @@
 #include <iostream>
-#include <string>
-#include <vector>
-#include <list>
+#include "Table.h"
+#include <climits>
+#include <algorithm>
 
 using namespace std;
 
-typedef list< pair<int, string> > Chain;
+typedef pair<int, string> tablepair;
 
-class Table{
+class OAT{
 public:
-    Table();
-    string& Add(const int& key, const string& value);
-    string& Get(int key);
-    string& operator[](const int& key);
     
-private:
-    int Hash(const int& key);
-    
-    vector<Chain> mTable;
-    const int mBucketCount = 4;
-};
-
-Table::Table(){
-    mTable.resize(mBucketCount);
-}
-
-string& Table::Add(const int& key, const string& value){
-    int idx = Hash(key);
-    mTable[idx].push_back(make_pair(key, value));
-    
-    return mTable[idx].back().second;
-}
-
-string& Table::Get(int key){
-    int idx = Hash(key);
-    
-    for(Chain::iterator itr = mTable[idx].begin(); itr != mTable[idx].end(); ++itr){
-        if(itr->first == key){
-            return itr->second;
-        }
+    OAT():
+    mTableLoad(0),
+    mTableSize(1)
+    {
+        Init();
     }
     
-    return Add(key, "Default");
-}
+    string& Add(int key, const string& value){
+        float loadFactor = mTableLoad / mTableSize;
+        if(loadFactor > MAX_LOAD){
+            RebuildTable();
+        }
+        
+        int probe = 0;
+        size_t h;
+        while(true){
+            h = DH(key, probe++);
+            if(mTable[h].first == EMPTY || mTable[h].first == DELETE){
+                mTable[h] = make_pair(key, value);
+                ++mTableLoad;
+                break;
+            }
+        }
+        
+        return mTable[h].second;
+    }
 
-string& Table::operator[](const int& key){
-    return Get(key);
-}
-
-int Table::Hash(const int& key){
-    return key % mBucketCount;
-}
+    string Get(int key) const{
+        int probe = 0;
+        size_t h;
+        while(probe < mTableSize){
+            h = DH(key, probe++);
+            if(mTable[h].first == key){
+                return mTable[h].second;
+            }else if(mTable[h].first == EMPTY){
+                return "";
+            }
+        }
+        
+        return "";
+    }
+    
+    ~OAT(){
+        delete[] mTable;
+    }
+    
+    void PrintTable(){
+        for(int i = 0; i < mTableSize; ++i){
+            cout << mTable[i].first << "," << mTable[i].second << endl;
+        }
+        cout << endl;
+    }
+    
+private:
+    
+    void Init(){
+        mTable = new tablepair[mTableSize];
+        fill_n(mTable, mTableSize, make_pair(EMPTY, ""));
+    }
+    
+    void RebuildTable(){
+        // save old stuff
+        size_t oldsize = mTableSize;
+        tablepair* oldTable = mTable;
+        
+        // build new table twice as big
+        mTableSize *= 2;
+        mTableLoad = 0;
+        Init();
+        
+        // rehash old stuff
+        for(int i = 0; i < oldsize; ++i){
+            Add(oldTable[i].first, oldTable[i].second);
+        }
+        
+        // clean up old stuff
+        delete[] oldTable;
+        oldTable = NULL;
+    }
+    
+    size_t H(int key, int i) const{
+        return H1(key) + i;
+    }
+    
+    size_t DH(int key, int i) const{
+        return (H1(key) + i*H2(key)) % mTableSize;
+    }
+    
+    size_t H1(int key) const{
+        return key;
+    }
+    
+    size_t H2(int key) const{
+        int v = 31 * key;
+        if(v & 1) return v;
+        else return v - 1;
+    }
+    
+private:
+    
+    tablepair* mTable;
+    size_t mTableSize;
+    size_t mTableLoad;
+    
+    const size_t EMPTY = INT_MAX;
+    const size_t DELETE = EMPTY-1;
+    const float MAX_LOAD = 0.7f;
+};
 
 int main(int argc, const char * argv[])
 {
-    Table t;
-    t.Add(1, "ant") = "aardvark";
-    t.Add(2, "bee");
-    t.Add(5, "elephant");
-    t[6] = "frog";
-    t[6] = "fly";
+    OAT oat;
     
-    cout << t[1] << endl;
-    cout << t[2] << endl;
-    cout << t[5] << endl;
-    cout << t[6] << endl;
+//    for(int i = 0; i < 100; ++i){
+//        char c = 'a' + i;
+//        string s = "";
+//        s += c;
+//        oat.Add(i % 10, s);
+//    }
+//    
+//    oat.PrintTable();
+    
+    oat.Add(3, "cat");
+    oat.Add(2, "bee");
+    oat.Add(16, "rhino");
+    oat.PrintTable();
+    
+    cout << oat.Get(2) << endl;
+    
+    
+//    Table t;
+//    t.Add(1, "ant") = "aardvark";
+//    t.Add(2, "bee");
+//    t.Add(5, "elephant");
+//    t[6] = "frog";
+//    t[6] = "fly";
+//    
+//    cout << t[1] << endl;
+//    cout << t[2] << endl;
+//    cout << t[5] << endl;
+//    cout << t[6] << endl;
 
     return 0;
 }
