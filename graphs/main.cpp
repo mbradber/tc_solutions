@@ -13,6 +13,10 @@ struct Vertex{
     
     Vertex(){
         id = -1;
+        Reset();
+    }
+    
+    void Reset(){
         color = 0;
         pred = -1;
         dist = 0;
@@ -73,7 +77,36 @@ public:
         PrintPath(v);
     }
     
+    void ResetGraph(){
+        for(int i = 0; i < m_vVertices.size(); ++i){
+            m_vVertices[i].Reset();
+        }
+    }
+    
+    void DFS(){
+        ResetGraph();
+        
+        for(int i = 0; i < m_vVertices.size(); ++i){
+            if(m_vVertices[i].pred < 0){
+                DFS_Visit(i);
+            }
+        }
+    }
+    
 private:
+    
+    void DFS_Visit(int s){
+        cout << s << ",";
+        m_vVertices[s].color = 1;
+        vector<int> neighbors = m_vVertices[s].neighbors;
+        for(int i = 0; i < neighbors.size(); ++i){
+            if(m_vVertices[neighbors[i]].color == 0){
+                m_vVertices[neighbors[i]].pred = s;
+                DFS_Visit(neighbors[i]);
+            }
+        }
+    }
+    
     void PrintPath(int v){
         if(m_vVertices[v].pred >= 0){
             PrintPath(m_vVertices[v].pred);
@@ -115,7 +148,8 @@ int main(){
     g.AddEdge(4, 2);
     g.AddEdge(4, 3);
     
-    g.PrintPath(4, 1);
+    //g.PrintPath(4, 1);
+    g.DFS();
     
     
     return 0;
