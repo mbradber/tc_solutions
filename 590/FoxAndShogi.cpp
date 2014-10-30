@@ -12,52 +12,56 @@
 #define MOD 1000000007
 
 using namespace std;
+int N;
+vector<string> gBoard;
+long long dp[50][50];
 
-void moves(string s, set<string>& totalMoveSet){
-    vector<string> moveList;
-    for(int i = 0; i < s.length(); ++i){
-        string st = s;
-        if(s[i] == 'D'){
-            if(i < s.length() - 1){
-                if(s[i+1] == '.'){
-                    swap(st[i], st[i+1]);
-                    moveList.push_back(st);
-                }
+long long op(vector<int>& pos, string& data, int p, int t){
+    if(t == pos.size()) return 1;
+    
+    long long& res = dp[p][t];
+    
+    if(res == -1){
+        res = 0;
+        if(data[pos[t]] == 'D'){
+            for(int j = max(pos[t], p); j < N; ++j){
+                res += op(pos, data, j + 1, t + 1);
+                res %= MOD;
             }
-        }else if(s[i] == 'U'){
-            if(i > 0){
-                if(s[i-1] == '.'){
-                    swap(st[i], st[i-1]);
-                    moveList.push_back(st);
-                }
+        }else if(data[pos[t]] == 'U'){
+            for(int j = pos[t]; j >= p; --j){
+                res += op(pos, data, j + 1, t + 1);
+                res %= MOD;
             }
         }
     }
-
-    for(int i = 0; i < moveList.size(); ++i){
-        totalMoveSet.insert(moveList[i]);
-        moves(moveList[i], totalMoveSet);
-    }
+    
+    return res;
 }
+
 
 class FoxAndShogi {
     public:
     int differentOutcomes(vector<string> board) {
         long long res = 1;
+        N = board.size();
+        gBoard = board;
         
-        for(int i = 0; i < board.size(); ++i){
-            string s = "";
-            for(int j = 0; j < board.size(); ++j){
-                s += board[j][i];
+        for(int i = 0; i < N; ++i){
+            memset(dp, -1, sizeof(dp));
+            vector<int> pos;
+            string data = "";
+            for(int j = 0; j < N; ++j){
+                if(board[j][i] != '.'){
+                    pos.push_back(j);
+                }
+                
+                data += board[j][i];
             }
             
-            set<string> moveSet;
-            moveSet.insert(s);
-            moves(s, moveSet);
-            res *= (long long)moveSet.size();
+            res *= op(pos, data, 0, 0);
             res %= MOD;
         }
-        
         
         return res;
     }
@@ -94,17 +98,13 @@ bool do_test(vector<string> board, int __expected, int caseNo) {
 bool run_testcase(int __no) {
     switch (__no) {
         case 0: {
-            string board[] = {"UUUUUU.UDUUUUU", ".DU..D.U..DD.D", "........U.....", ".UD.D.UD.DDDDD", "........D..DD.", "UDDDUDDDD.DDDU", "DD.UD.UD.UUUD.", "U.U....DU.DDD.", "D.U.DDDDDDUDDD", "U...U.UUUU.U.U", "U.UU...U.UU.UU", ".DDDDUU.UUD.DD", ".D.DD...D..U.D", "...UUUUUUDUUUU"};
-            int __expected = 809225782;
+            string board[] = {"DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD", "..................................................", "..................................................", "..................................................", "..................................................", "..................................................", "..................................................", "..................................................", "..................................................", "..................................................", "..................................................", "..................................................", "..................................................", "..................................................", "..................................................", "..................................................", "..................................................", "..................................................", "..................................................", "..................................................", "..................................................", "..................................................", "..................................................", "..................................................", "..................................................", ".................................................."};
+            int __expected = 734859261;
             return do_test(to_vector(board), __expected, __no);
         }
         case 1: {
-            string board[] = {
-                ".D.",
-                "...",
-                ".U."
-            };
-            int __expected = 3;
+            string board[] = {"..................................................", "..................................................", "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU", "..................................................", "..................................................", "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU", "..................................................", "..................................................", "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU", "..................................................", "..................................................", "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU", "..................................................", "..................................................", "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU", "..................................................", "..................................................", "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU", "..................................................", "..................................................", "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU", "..................................................", "..................................................", "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU", "..................................................", "..................................................", "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU", "..................................................", "..................................................", "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU", "..................................................", "..................................................", "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU", "..................................................", "..................................................", "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU", "..................................................", "..................................................", "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU", "..................................................", "..................................................", "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU", "..................................................", "..................................................", "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU", "..................................................", "..................................................", "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU", "..................................................", ".................................................."};
+            int __expected = 173931725;
             return do_test(to_vector(board), __expected, __no);
         }
         case 2: {
